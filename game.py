@@ -6,6 +6,7 @@ from data import *
 from pygame.locals import *
 from socket import *
 from server import *
+from computer import *
 from ConfigParser import SafeConfigParser
 
 #Constants- Edit game.conf to change
@@ -64,6 +65,7 @@ data = Data()
 world.add(data, (190, 250))
 data2 = Data()
 world.add(data2, (100, 200))
+world.add(Computer(100, 100), (width - 100, height - 100))
 
 #Method for pygame events, for both server and client
 def handleEvents(events):
@@ -111,8 +113,7 @@ while True:
 		s = s[0:length]#cut off the extra bytes
 		events = [pygame.event.Event(event[0], event[1]) for event in json.loads(s)]
 	handleEvents(events)
-	player.move()
-	player2.move()
+	world.update()
 	area = pygame.Rect(coords[0] * screen.get_width(), coords[1] * screen.get_height(), screen.get_width(), screen.get_height()) #The area of the world to get
 	screen.blit(world.getSurface(area), (0, 0))
 	pygame.display.update()
