@@ -11,21 +11,35 @@ from ConfigParser import SafeConfigParser
 #Constants- Edit game.conf to change
 parser = SafeConfigParser()
 parser.read('game.conf')
-WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = parser.getint('window', 'width'), parser.getint('window', 'height')
-ROWS = parser.getint('window', 'rows')
-COLS = parser.getint('window', 'cols')
-size = width, height = WIN_WIDTH * COLS, WIN_HEIGHT * ROWS
 port = parser.getint('connection', 'port')
 
 server = None #Acts as flag for servermode, and as the actual server object
 if raw_input('Server (y/n)? ') == 'y':
 	address = ('', port)
-	server = Server(address)
+	WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = parser.getint('window', 'width'), parser.getint('window', 'height')
+	ROWS = parser.getint('window', 'rows')
+	COLS = parser.getint('window', 'cols')
+	constants = {'width': WIN_WIDTH, 'height': WIN_HEIGHT, 'rows': ROWS, 'cols': COLS}
+	server = Server(address, json.dumps(constants))
 	server.start()
 else:
 	address = (parser.get('connection', 'address'), port)
 	sock = socket()
 	sock.connect(address)
+	length = int(sock.recv(1024))
+	sock.send('ACK')
+	s = sock.recv(2048)
+	#Calls recv multiple times to get the entire message
+	while len(s) < length:
+		s += sock.recv(2048)
+	sock.send('done')
+	s = s[0:length]#cut off the extra bytes
+	constants = json.loads(s)
+	WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = constants['width'], constants['height'] 
+	ROWS = constants['rows']
+	COLS = constants['cols']
+
+size = width, height = WIN_WIDTH * COLS, WIN_HEIGHT * ROWS
 coords = (int(raw_input('x: ')), int(raw_input('y: '))) #Which window of the world to show
 pygame.init()
 screen = pygame.display.set_mode(WIN_SIZE)
