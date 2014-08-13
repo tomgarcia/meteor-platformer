@@ -48,6 +48,7 @@ clock = pygame.time.Clock()
 world = World(width, height)
 player = world.player1
 player2 = world.player2
+
 #Method for pygame events, for both server and client
 def handleEvents(events):
 	for event in events:

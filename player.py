@@ -16,6 +16,7 @@ class Player(MovingEntity):
 		MovingEntity.__init__(self, self.image.get_rect(), Vector(0, 0), Vector(0, GRAVITY))
 		self.direction = 0
 		self.data = None
+		self.score = 0
 	def setDirection(self, direction):
 		self.direction += direction
 	def jump(self):
@@ -29,6 +30,10 @@ class Player(MovingEntity):
 			self.data = data
 			self.world.remove(self.data)
 			self.image = pygame.image.load('PlayerWithData.png')
+	def giveData(self):
+		self.data = None
+		self.score += 1
+		self.image = pygame.image.load('Player.png')
 	def respondToCollision(self, entity, distance):
 		if isinstance(entity, Data):
 			self.addData(entity)
@@ -36,8 +41,7 @@ class Player(MovingEntity):
 			return distance
 		else:
 			if isinstance(entity, Computer)and self.data:
-				self.data = None
-				self.image = pygame.image.load('PlayerWithPaper.png')
+				self.giveData()
 			if isinstance(entity, Player):
 				if self.data:
 					data = self.data

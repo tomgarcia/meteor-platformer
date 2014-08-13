@@ -1,4 +1,4 @@
-import pygame
+import pygame, pygame.font
 from wall import *
 from data import *
 from player import *
@@ -10,6 +10,8 @@ red = 255, 0, 0
 green = 0, 255, 0
 blue = 0, 0, 255
 SPRITE_LENGTH = 25
+pygame.font.init()
+scoreFont = pygame.font.SysFont(pygame.font.get_default_font(), 40)
 
 class World:
 	def __init__(self, width, height):
@@ -77,6 +79,12 @@ class World:
 					surf.fill(blue, entity.rect.move(-1 * area.left, -1 * area.top))
 				else:
 					surf.fill(red, entity.rect.move(-1 * area.left, -1 * area.top))
+		if area.topleft == (0, 0):
+			score = scoreFont.render('Player 1: ' + str(self.player1.score), 1, black)
+			surf.blit(score, (0, 0))
+		if area.topright == (self.width, 0):
+			score = scoreFont.render('Player 2: ' + str(self.player2.score), 1, black)
+			surf.blit(score, (surf.get_width() - 10 - score.get_width(), 0))
 		return surf
 	#Moves entities within the world, and handles collision detection and response. Use this instead of Rect.move for entities
 	def move(self, entity, distance):

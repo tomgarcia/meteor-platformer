@@ -14,7 +14,7 @@ class Data(MovingEntity):
 		elif isinstance(entity, Computer):
 			self.world.remove(self)
 			if self.player:
-				self.player.image = pygame.image.load('PlayerWithPaper.png')
+				self.player.giveData()
 		else:
 			if distance.y > 0:
 				self.velocity.x = 0
