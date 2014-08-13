@@ -25,7 +25,7 @@ class MovingEntity(Entity):
 		elif distance.y < 0 and abs(distance.y) >= abs(self.rect.top - otherRect.bottom):
 			difference.y = otherRect.bottom - self.rect.top
 			self.velocity.y = 0
-		if distance.x > 0 and abs(distance.x) >= abs(self.rect.right - otherRect.left):
+		elif distance.x > 0 and abs(distance.x) >= abs(self.rect.right - otherRect.left):
 			difference.x = otherRect.left - self.rect.right
 		elif distance.x < 0 and abs(distance.x) >= abs(self.rect.left - otherRect.right):
 			difference.x = otherRect.right - self.rect.left

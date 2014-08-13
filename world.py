@@ -9,6 +9,7 @@ black = 0, 0, 0
 red = 255, 0, 0
 green = 0, 255, 0
 blue = 0, 0, 255
+SPRITE_LENGTH = 25
 
 class World:
 	def __init__(self, width, height):
@@ -21,6 +22,33 @@ class World:
 		self.add(leftWall, (-1, 0))
 		self.add(rightWall, (self.width + 1, 0))
 		self.add(floor, (0, self.height + 1))
+		self.player1 = Player()
+		self.player2 = Player()
+		self.fillLevel('level.map')
+	def fillLevel(self, mapname):
+		f = file(mapname, 'r')
+		loc = [0, 0]
+		for line in f:
+			for char in line:
+				e = self.newEntity(char)
+				if e:
+					self.add(e, loc)
+				loc[0] += SPRITE_LENGTH
+			loc[0] = 0
+			loc[1] += SPRITE_LENGTH
+	def newEntity(self, char):
+		if char == 'P':
+			return self.player1
+		elif char == 'p':
+			return self.player2
+		elif char == 'W':
+			return Wall(25, 25)
+		elif char == 'D':
+			return Data()
+		elif char == 'C':
+			return Computer(25, 25)
+		else:
+			return None
 	def update(self):
 		for e in self.movingList:
 			e.move()

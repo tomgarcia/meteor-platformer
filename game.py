@@ -46,27 +46,8 @@ pygame.init()
 screen = pygame.display.set_mode(WIN_SIZE)
 clock = pygame.time.Clock()
 world = World(width, height)
-player = Player()
-player2 = Player()
-world.add(player2, (0, height - player.rect.height))
-world.add(player, (width - player.rect.width, height - player.rect.height))
-wall1 = Wall(100, 40)
-wall2 = Wall(100, 140)
-world.add(wall1, (50, 320))
-world.add(wall2, (180, 300))
-wallHeight = 100
-for i in range(1, 6):
-	world.add(Wall(100, 40), (100 + 150 * i, height - wallHeight)) 
-	wallHeight += 100
-for i in range(4, 1, -1):
-	world.add(Wall(100, 40), (100 + 150 * i, height - wallHeight))
-	wallHeight += 100
-data = Data()
-world.add(data, (190, 250))
-data2 = Data()
-world.add(data2, (100, 200))
-world.add(Computer(100, 100), (width - 100, height - 100))
-
+player = world.player1
+player2 = world.player2
 #Method for pygame events, for both server and client
 def handleEvents(events):
 	for event in events:
