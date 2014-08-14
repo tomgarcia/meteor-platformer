@@ -8,6 +8,7 @@ from socket import *
 from server import *
 from computer import *
 from ConfigParser import SafeConfigParser
+from random import *
 
 #Constants- Edit game.conf to change
 parser = SafeConfigParser()
@@ -20,7 +21,8 @@ if raw_input('Server (y/n)? ') == 'y':
 	WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = parser.getint('window', 'width'), parser.getint('window', 'height')
 	ROWS = parser.getint('window', 'rows')
 	COLS = parser.getint('window', 'cols')
-	constants = {'width': WIN_WIDTH, 'height': WIN_HEIGHT, 'rows': ROWS, 'cols': COLS}
+	seed = randint(0, 100000)
+	constants = {'width': WIN_WIDTH, 'height': WIN_HEIGHT, 'rows': ROWS, 'cols': COLS, 'seed': seed}
 	server = Server(address, json.dumps(constants))
 	server.start()
 else:
@@ -39,13 +41,14 @@ else:
 	WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = constants['width'], constants['height'] 
 	ROWS = constants['rows']
 	COLS = constants['cols']
+	seed = constants['seed']
 
 size = width, height = WIN_WIDTH * COLS, WIN_HEIGHT * ROWS
 coords = (int(raw_input('x: ')), int(raw_input('y: '))) #Which window of the world to show
 pygame.init()
 screen = pygame.display.set_mode(WIN_SIZE)
 clock = pygame.time.Clock()
-world = World(width, height)
+world = World(width, height, seed)
 player = world.player1
 player2 = world.player2
 

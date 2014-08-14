@@ -34,6 +34,7 @@ class Player(MovingEntity):
 		self.data = None
 		self.score += 1
 		self.image = pygame.image.load('Player.png')
+		self.world.randomData()
 	def respondToCollision(self, entity, distance):
 		if isinstance(entity, Data):
 			self.addData(entity)

@@ -3,6 +3,7 @@ from wall import *
 from data import *
 from player import *
 from entity import *
+from random import *
 
 white = 255, 255, 255
 black = 0, 0, 0
@@ -14,13 +15,15 @@ pygame.font.init()
 scoreFont = pygame.font.SysFont(pygame.font.get_default_font(), 40)
 
 class World:
-	def __init__(self, width, height):
+	def __init__(self, width, height, randomseed):
 		self.entityList = []
 		self.movingList = []
 		self.size = self.width, self.height = width, height
+		seed(randomseed)
 		leftWall = Wall(0, self.height)
 		rightWall = Wall(0, self.height)
 		floor = Wall(self.width, self.height) #The floor is extra tall so that players cannot accidently fall through
+		self.boundaries = [leftWall, rightWall, floor]
 		self.add(leftWall, (-1, 0))
 		self.add(rightWall, (self.width + 1, 0))
 		self.add(floor, (0, self.height + 1))
@@ -44,13 +47,20 @@ class World:
 		elif char == 'p':
 			return self.player2
 		elif char == 'W':
-			return Wall(25, 25)
+			return Wall(SPRITE_LENGTH, SPRITE_LENGTH)
 		elif char == 'D':
 			return Data()
 		elif char == 'C':
-			return Computer(25, 25)
+			return Computer(SPRITE_LENGTH, SPRITE_LENGTH)
 		else:
 			return None
+	def randomData(self):
+		data = Data()
+		walls = [entity for entity in self.entityList if isinstance(entity, Wall) and entity not in self.boundaries]
+		wall = choice(walls)
+		x = wall.rect.left
+		y = wall.rect.top - 100
+		self.add(data, (x, y))
 	def update(self):
 		for e in self.movingList:
 			e.move()
