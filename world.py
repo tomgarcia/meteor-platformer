@@ -13,6 +13,7 @@ blue = 0, 0, 255
 SPRITE_LENGTH = 25
 pygame.font.init()
 scoreFont = pygame.font.SysFont(pygame.font.get_default_font(), 40)
+pausedFont = pygame.font.SysFont('helvetica', 100)
 
 class World:
 	def __init__(self, width, height, randomseed):
@@ -30,17 +31,24 @@ class World:
 		self.player1 = Player()
 		self.player2 = Player()
 		self.fillLevel('level.map')
+		self.paused = False
+		self.gameOver = False
+	def pause(self):
+		self.paused = not self.paused
+	def end(self):
+		self.gameOver = True
 	def fillLevel(self, mapname):
 		f = file(mapname, 'r')
-		loc = [0, 0]
-		for line in f:
+		lines = f.read().split('\n')
+		loc = [0, self.height]
+		for line in reversed(lines):
 			for char in line:
 				e = self.newEntity(char)
 				if e:
 					self.add(e, loc)
 				loc[0] += SPRITE_LENGTH
 			loc[0] = 0
-			loc[1] += SPRITE_LENGTH
+			loc[1] -= SPRITE_LENGTH
 	def newEntity(self, char):
 		if char == 'P':
 			return self.player1
@@ -62,8 +70,9 @@ class World:
 		y = wall.rect.top - 100
 		self.add(data, (x, y))
 	def update(self):
-		for e in self.movingList:
-			e.move()
+		if not self.paused:
+			for e in self.movingList:
+				e.move()
 	def add(self, entity, loc):
 		entity.rect.topleft = loc
 		entity.setWorld(self)
@@ -95,6 +104,24 @@ class World:
 		if area.topright == (self.width, 0):
 			score = scoreFont.render('Player 2: ' + str(self.player2.score), 1, black)
 			surf.blit(score, (surf.get_width() - 10 - score.get_width(), 0))
+		if self.gameOver:
+			if self.player1.score > self.player2.score:
+				text = 'Player 1 won'
+			elif self.player2.score > self.player1.score:
+				text = 'Player 2 won'
+			else:
+				text = 'Tie'
+			msg = pausedFont.render('Game Over', 1, black)
+			winnermsg = pausedFont.render(text, 2, black)
+			words = pygame.Surface((max(msg.get_width(), winnermsg.get_width()), msg.get_height() + winnermsg.get_height()))
+			words.fill(white)
+			words.blit(msg, [0, 0])
+			words.blit(winnermsg, [0, msg.get_height()])
+			loc = (self.width / 2 - words.get_width() / 2 - area.left, self.height / 2 - words.get_height() / 2 - area.top)
+			surf.blit(words, loc)
+		elif self.paused:
+			words = pausedFont.render('Paused', 1, black)
+			surf.blit(words, (self.width / 2 - words.get_width() / 2 - area.left, self.height / 2 - words.get_height() / 2 - area.top))
 		return surf
 	#Moves entities within the world, and handles collision detection and response. Use this instead of Rect.move for entities
 	def move(self, entity, distance):

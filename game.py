@@ -52,40 +52,36 @@ clock = pygame.time.Clock()
 world = World(width, height, seed)
 player = world.player1
 player2 = world.player2
-paused = False
-gameOver = False
 time = 0
 
 #Method for pygame events, for both server and client
 def handleEvents(events):
-	global time, paused, gameOver, world, player, player2
+	global time, world, player, player2
 	for event in events:
 		if event.type == QUIT:
 			pygame.quit()
 			sys.exit()
 		elif event.type == USEREVENT and event.code == "GAME_OVER":
-			gameOver = True
+			world.end()
 		elif event.type == KEYDOWN:
 			if event.key == K_p:
-				paused = not paused
+				world.pause()
 			elif event.key == K_r:
-				paused = False
-				gameOver = False
 				time = 0
-				world = World(width, height, seed)
+				world = World(width, height, randint(0, 99999999999))
 				player = world.player1
 				player2 = world.player2
 			elif event.key == K_LEFT:
 				player2.setDirection(LEFT)
 			elif event.key == K_RIGHT:
 				player2.setDirection(RIGHT)
-			elif event.key == K_UP and not paused:
+			elif event.key == K_UP and not world.paused:
 				player2.jump()
 			elif event.key == K_a:
 				player.setDirection(LEFT)
 			elif event.key == K_d:
 				player.setDirection(RIGHT)
-			elif event.key == K_w and not paused:
+			elif event.key == K_w and not world.paused:
 				player.jump()
 		elif event.type == KEYUP:
 			if event.key == K_LEFT:
@@ -100,11 +96,20 @@ def handleEvents(events):
 while True:
 	if server:
 		events = pygame.event.get()
-		if time >= 60000 and not gameOver:
-			gameOver = True
+		if time >= 60000 and not world.gameOver:
+			world.end()
 			events.append(pygame.event.Event(USEREVENT, {'code': 'GAME_OVER'}))
-		eventsJson = json.dumps([(event.type, event.__dict__) for event in events])
-		server.send(eventsJson)
+		eventsJson = []
+		for event in events:
+			if event.type == USEREVENT:
+				eventsJson.append((event.type, {'code': event.code}))
+			elif event.type == KEYDOWN:
+				eventsJson.append((event.type, {'key': event.key, 'mod': event.mod, 'unicode': event.unicode}))
+			elif event.type == KEYUP:
+				eventsJson.append((event.type, {'key': event.key, 'mod': event.mod}))
+			else:
+				eventsJson.append((event.type, {}))
+		server.send(json.dumps(eventsJson))
 	else:
 		pygame.event.pump()
 		length = int(sock.recv(1024))
@@ -117,30 +122,10 @@ while True:
 		s = s[0:length]#cut off the extra bytes
 		events = [pygame.event.Event(event[0], event[1]) for event in json.loads(s)]
 	handleEvents(events)
-	if gameOver:
-		if player.score > player2.score:
-			text = 'Player 1 won'
-		elif player2.score > player.score:
-			text = 'Player 2 won'
-		else:
-			text = 'Tie'
-		msg = pausedFont.render('Game Over', 1, (0, 0, 0))
-		winnermsg = pausedFont.render(text, 2, (0, 0, 0))
-		words = pygame.Surface((max(msg.get_width(), winnermsg.get_width()), msg.get_height() + winnermsg.get_height()))
-		words.fill((255, 255, 255))
-		words.blit(msg, [0, 0])
-		words.blit(winnermsg, [0, msg.get_height()])
-		loc = (screen.get_width() / 2 - words.get_width() / 2, screen.get_height() / 2 - words.get_height() / 2)
-		screen.blit(words, loc)
-	elif not paused:
-		world.update()
-		area = pygame.Rect(coords[0] * screen.get_width(), coords[1] * screen.get_height(), screen.get_width(), screen.get_height()) #The area of the world to get
-		screen.blit(world.getSurface(area), (0, 0))
-	elif paused:
-		words = pausedFont.render('Paused', 1, (0, 0, 0))
-		loc = (screen.get_width() / 2 - words.get_width() / 2, screen.get_height() / 2 - words.get_height() / 2)
-		screen.blit(words, loc)
+	world.update()
+	area = pygame.Rect(coords[0] * screen.get_width(), coords[1] * screen.get_height(), screen.get_width(), screen.get_height()) #The area of the world to get
+	screen.blit(world.getSurface(area), (0, 0))
 	pygame.display.update()
 	ctr = clock.tick(60)
-	if not paused:
+	if not world.paused:
 		time += ctr
