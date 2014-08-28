@@ -10,7 +10,7 @@ black = 0, 0, 0
 red = 255, 0, 0
 green = 0, 255, 0
 blue = 0, 0, 255
-SPRITE_LENGTH = 25
+SPRITE_LENGTH = 50
 pygame.font.init()
 scoreFont = pygame.font.SysFont(pygame.font.get_default_font(), 40)
 pausedFont = pygame.font.SysFont('helvetica', 100)
@@ -21,11 +21,11 @@ class World:
 		self.movingList = []
 		self.size = self.width, self.height = width, height
 		seed(randomseed)
-		leftWall = Wall(0, self.height)
-		rightWall = Wall(0, self.height)
+		leftWall = Wall(100, self.height)
+		rightWall = Wall(100, self.height)
 		floor = Wall(self.width, self.height) #The floor is extra tall so that players cannot accidently fall through
 		self.boundaries = [leftWall, rightWall, floor]
-		self.add(leftWall, (-1, 0))
+		self.add(leftWall, (-101, 0))
 		self.add(rightWall, (self.width + 1, 0))
 		self.add(floor, (0, self.height + 1))
 		self.player1 = Player()

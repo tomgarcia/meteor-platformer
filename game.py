@@ -22,8 +22,9 @@ if raw_input('Server (y/n)? ') == 'y':
 	WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = parser.getint('window', 'width'), parser.getint('window', 'height')
 	ROWS = parser.getint('window', 'rows')
 	COLS = parser.getint('window', 'cols')
+	BORDER = parser.getint('window', 'border')
 	seed = randint(0, 99999999999)
-	constants = {'width': WIN_WIDTH, 'height': WIN_HEIGHT, 'rows': ROWS, 'cols': COLS, 'seed': seed}
+	constants = {'width': WIN_WIDTH, 'height': WIN_HEIGHT, 'rows': ROWS, 'cols': COLS, 'border': BORDER, 'seed': seed}
 	server = Server(address, json.dumps(constants))
 	server.start()
 else:
@@ -42,9 +43,10 @@ else:
 	WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = constants['width'], constants['height'] 
 	ROWS = constants['rows']
 	COLS = constants['cols']
+	BORDER = constants['border']
 	seed = constants['seed']
 
-size = width, height = WIN_WIDTH * COLS, WIN_HEIGHT * ROWS
+size = width, height = WIN_WIDTH * COLS + BORDER * (COLS - 1), WIN_HEIGHT * ROWS + BORDER * (ROWS - 1)
 coords = (int(raw_input('x: ')), int(raw_input('y: '))) #Which window of the world to show
 pygame.init()
 screen = pygame.display.set_mode(WIN_SIZE)
@@ -123,7 +125,7 @@ while True:
 		events = [pygame.event.Event(event[0], event[1]) for event in json.loads(s)]
 	handleEvents(events)
 	world.update()
-	area = pygame.Rect(coords[0] * screen.get_width(), coords[1] * screen.get_height(), screen.get_width(), screen.get_height()) #The area of the world to get
+	area = pygame.Rect(coords[0] * (screen.get_width() + BORDER), coords[1] * (screen.get_height() + BORDER), screen.get_width(), screen.get_height()) #The area of the world to get
 	screen.blit(world.getSurface(area), (0, 0))
 	pygame.display.update()
 	ctr = clock.tick(60)
