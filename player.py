@@ -6,9 +6,9 @@ from data import *
 
 LEFT = -1
 RIGHT = 1
-JUMP = -30
-SPEED_MULTIPLIER = 16
-GRAVITY = 2
+JUMP = -60
+SPEED_MULTIPLIER = 32
+GRAVITY = 8
 
 class Player(MovingEntity):
 	def __init__(self):
